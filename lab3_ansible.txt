@@ -1,0 +1,38 @@
+playbook.yaml
+
+- name: lab 3 both hosts
+  hosts: virtualmachines
+  tasks:
+  - name: install wget on both hosts
+    become: yes
+    package:
+      name: wget
+      state: present
+      update_cache: true
+  - name: install unzip on host-b
+    become: yes
+    package:
+      name: wget
+      state: present
+      update_cache: true
+    when: ansible_host == '18.171.211.72'
+  - name: install nginx on host-a
+    become: yes
+    package:
+      name: nginx
+      state: present
+      update_cache: true
+    when: ansible_host == '13.42.12.57'   
+
+----------------
+
+inventory.yaml
+
+virtualmachines:
+  hosts:
+    vm01:
+      ansible_host: 13.42.12.57
+    vm02:
+      ansible_host: 18.171.211.72
+      
+  
