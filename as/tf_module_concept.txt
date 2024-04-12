@@ -1,0 +1,48 @@
+resource "aws_instance" "module" {
+    ami = var.ami
+    instance_type = var.instance_type
+    subnet_id = var.subnet_id
+
+    tags = var.tags
+}
+
+variable "ami" {
+    default = "ami-0fb391cce7a602d1f"  
+}
+
+variable "instance_type" {
+    default = "t2.micro"      
+}
+
+variable "subnet_id" {}
+
+variable "tags" {
+    type = map(string)
+    default = {}  
+}
+
+
+=======
+
+provider "aws" {
+    profile = "default"
+    region = "eu-west-2"
+}
+
+module "ec2-mod" {
+    count = 2
+    source = "./EC2"
+    subnet_id = var.subnet_ids[count.index]
+    #subnet_id = count.index == 0? "subnet-034dc62be04865899" : "subnet-0b4cbfc541c8a1e81"
+    tags = {
+        Name = "lab6-${count.index}"
+    }
+  
+}
+
+variable "subnet_ids" {
+    default = ["subnet-034dc62be04865899","subnet-0b4cbfc541c8a1e81"]
+  
+}
+
+========

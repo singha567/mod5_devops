@@ -1,0 +1,68 @@
+- name: my playbook
+  hosts: localhost
+  vars_files: #hardcoded in file
+    - myname.yaml
+  vars:
+    my_name: "AS"
+    repo_url: "https://gitlab.com/Reece-Elder/devops-m5-rds.git"
+    new_file: "/home/ubuntu/ansible/example.txt"
+    append_text: "an example"
+  vars_prompt: #it will ask user when we run playbook. Take precedence over vars and all.
+    - name: "package_name"
+      prompt: "enter the package name to install"
+      default: "unzip"
+    - name: "append_text"
+      prompt: "enter text to append to the file"
+      private: no # I will be able to see the content
+
+  tasks:
+    - name: print name
+      debug:
+        msg: "my name is {{ my_name }}"
+    
+    - name: clone repo
+      git:
+        repo: "{{ repo_url }}"
+        dest: /home/ubuntu/repo
+
+    - name: install package
+      become: yes
+      package: 
+        name: "{{ package_name }}"
+        #name: "{{ package_name | default('unzip', package_name is not defined or package_name == '')}}"
+        state: present
+
+    - name: install nginx
+      become: yes
+      package:
+        name: nginx
+        state: present
+        update_cache: true      
+      notify: 
+        - restart nginx
+
+    - name: create new file
+      file:
+        path: "{{ new_file }}"
+        state: touch
+
+    - name: append text
+      lineinfile:
+        path: "{{ new_file }}"
+        line: "{{ append_text }}"
+        state: present
+        create: true
+
+
+
+
+  handlers:
+    - name: restart nginx
+      become: yes
+      service:
+        name: nginx
+        state: restarted
+
+
+        
+
